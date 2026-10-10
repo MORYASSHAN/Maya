@@ -1,0 +1,167 @@
+/* /simple — fast single-column reading version. Reuses the design tokens and prose styles. */
+@import '@fontsource-variable/oswald';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+@import './global.css';
+@import './pages.css';
+
+html {
+  scrollbar-width: auto;
+  scroll-behavior: smooth;
+}
+html::-webkit-scrollbar {
+  display: initial;
+}
+body {
+  touch-action: auto;
+  background:
+    radial-gradient(80% 50% at 50% 0%, rgba(125, 211, 252, 0.06), transparent 70%),
+    var(--bg);
+}
+
+.s-top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px clamp(20px, 5vw, 48px);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+.s-top nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.s-top nav a:not(.hud__pill) {
+  color: var(--text);
+  text-decoration: none;
+}
+.s-top nav a:hover {
+  color: var(--text-hi);
+}
+
+.s-main {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 32px);
+}
+.s-phase {
+  padding: clamp(64px, 12vh, 120px) 0;
+  border-bottom: 1px solid var(--line);
+}
+.s-phase:first-child {
+  padding-top: clamp(72px, 16vh, 160px);
+}
+.s-phase:last-child {
+  border-bottom: 0;
+}
+.s-phase .h-hero {
+  font-size: clamp(52px, 11vw, 112px);
+}
+.s-phase .h-phase {
+  font-size: clamp(32px, 6vw, 52px);
+}
+.s-phase .body {
+  max-width: 56ch;
+}
+
+.detail {
+  width: 100%;
+  margin-top: 34px;
+}
+.detail summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-hi);
+  cursor: pointer;
+  list-style: none;
+}
+.detail summary::-webkit-details-marker {
+  display: none;
+}
+.detail__plus {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  transition: transform 0.4s var(--ease-out);
+}
+.detail__plus::before,
+.detail__plus::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+.detail__plus::before {
+  left: 0;
+  right: 0;
+  top: 5px;
+  height: 1px;
+}
+.detail__plus::after {
+  top: 0;
+  bottom: 0;
+  left: 5px;
+  width: 1px;
+}
+.detail[open] .detail__plus {
+  transform: rotate(45deg);
+}
+.detail .prose {
+  margin-top: 26px;
+  padding: clamp(22px, 4vw, 36px) 0 0;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  max-width: none;
+}
+.detail .prose__title {
+  font-size: clamp(24px, 3.4vw, 30px);
+  text-transform: uppercase;
+}
+.prose h4 {
+  margin: 34px 0 12px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  font-family: var(--f-display);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-hi);
+}
+
+.s-foot {
+  padding: 40px 20px 56px;
+  text-align: center;
+  color: var(--text-lo);
+  font-size: 10px;
+}
+
+/* Centered, like the immersive site */
+.s-phase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: clamp(56px, 9vh, 96px);
+  padding-bottom: clamp(56px, 9vh, 96px);
+}
+.s-phase .body {
+  margin-left: auto;
+  margin-right: auto;
+}
+.s-phase .h-hero {
+  font-size: clamp(64px, 14vw, 140px);
+}
+.s-phase .h-phase {
+  font-size: clamp(40px, 8vw, 76px);
+}
+.s-top nav {
+  gap: 28px;
+}
