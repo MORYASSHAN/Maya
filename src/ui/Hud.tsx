@@ -17,8 +17,12 @@ export function Hud({ visible }: { visible: boolean }) {
   useEffect(() => onPhaseIndex(setIndex), [])
   useEffect(() => {
     let raf = 0
+    let shown = -1
     const tick = () => {
-      if (fillRef.current) fillRef.current.style.transform = `scaleX(${scroll.progress})`
+      if (fillRef.current && scroll.progress !== shown) {
+        shown = scroll.progress
+        fillRef.current.style.transform = `scaleX(${shown})`
+      }
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)

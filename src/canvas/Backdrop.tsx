@@ -139,7 +139,7 @@ export function Backdrop() {
     u.uTime.value = t
     u.uClick.value.z += dt
     // Dots travel with the page at a fraction of scroll speed — a sense of depth.
-    u.uScroll.value = (scroll.progress * document.documentElement.scrollHeight * 0.18) % (44 * 1.41421356 * 400)
+    u.uScroll.value = (scroll.progress * scroll.height * 0.18) % (44 * 1.41421356 * 400)
     u.uAmbient.value = scroll.reduced ? 0 : 1
   })
 

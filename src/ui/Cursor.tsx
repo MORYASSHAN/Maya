@@ -29,9 +29,12 @@ export function Cursor() {
     }
     const leave = () => el.classList.add('cursor--hidden')
     const tick = () => {
-      cx += (x - cx) * 0.28
-      cy += (y - cy) * 0.28
-      el.style.transform = `translate3d(${cx}px, ${cy}px, 0)`
+      // Skip the style write once the ring has caught up with the pointer.
+      if (Math.abs(x - cx) + Math.abs(y - cy) > 0.1) {
+        cx += (x - cx) * 0.28
+        cy += (y - cy) * 0.28
+        el.style.transform = `translate3d(${cx}px, ${cy}px, 0)`
+      }
       el.classList.toggle('cursor--hover', hover && !look.dragging)
       el.classList.toggle('cursor--drag', look.dragging)
       raf = requestAnimationFrame(tick)

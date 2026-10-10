@@ -19,6 +19,8 @@ export const scroll = {
   progress: 0,
   index: 0,
   reduced: false,
+  /** Document height in px, cached on resize so per-frame readers don't force a layout. */
+  height: 1,
 }
 
 export const INTRO_SPAN = 0.9
@@ -41,6 +43,7 @@ export function measureSections() {
   heights = els.map((el) => el.offsetHeight)
   intros = els.map((el) => el.querySelector<HTMLElement>('[data-intro]')?.offsetHeight ?? el.offsetHeight)
   vh = window.innerHeight
+  scroll.height = document.documentElement.scrollHeight
 }
 
 /** Local 0..1 progress for a probe offset (px) inside section i. */
@@ -54,7 +57,7 @@ function localT(i: number, local: number) {
 
 export function updateScroll(y: number) {
   if (!tops.length) return
-  const max = document.documentElement.scrollHeight - vh
+  const max = scroll.height - vh
   scroll.progress = max > 0 ? clamp(y / max) : 0
 
   const probe = y + vh * 0.5
