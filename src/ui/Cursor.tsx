@@ -1,61 +1,76 @@
 import { useEffect, useRef } from 'react'
-import { look } from '../lib/look'
 
-const INTERACTIVE = 'a, button, summary, [role="button"], .ledger li'
+const INTERACTIVE = 'a, button, [role="button"]'
 
-/** Small cyan ring that trails the pointer and grows over interactive elements. Desktop only. */
+/**
+ * A fine dot that tracks the pointer and a hairline ring that trails it, set in
+ * difference mode so it reads over any still. Grows over links. Desktop only.
+ */
 export function Cursor() {
-  const ref = useRef<HTMLDivElement>(null)
+  const ring = useRef<HTMLDivElement>(null)
+  const dot = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
-    const el = ref.current!
+    const r = ring.current!
+    const d = dot.current!
     document.documentElement.classList.add('has-cursor')
     let x = -100
     let y = -100
-    let cx = x
-    let cy = y
+    let rx = x
+    let ry = y
     let raf = 0
-    let hover = false
 
     const move = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return
       x = e.clientX
       y = e.clientY
-      el.classList.remove('cursor--hidden')
+      d.style.transform = `translate3d(${x}px, ${y}px, 0)`
+      r.classList.remove('cursor--hidden')
+      d.classList.remove('cursor--hidden')
     }
     const over = (e: PointerEvent) => {
-      hover = !!(e.target as Element)?.closest?.(INTERACTIVE)
+      r.classList.toggle('cursor--hover', !!(e.target as Element)?.closest?.(INTERACTIVE))
     }
-    const leave = () => el.classList.add('cursor--hidden')
+    const down = () => r.classList.add('cursor--down')
+    const up = () => r.classList.remove('cursor--down')
+    const leave = () => {
+      r.classList.add('cursor--hidden')
+      d.classList.add('cursor--hidden')
+    }
     const tick = () => {
-      // Skip the style write once the ring has caught up with the pointer.
-      if (Math.abs(x - cx) + Math.abs(y - cy) > 0.1) {
-        cx += (x - cx) * 0.28
-        cy += (y - cy) * 0.28
-        el.style.transform = `translate3d(${cx}px, ${cy}px, 0)`
+      if (Math.abs(x - rx) + Math.abs(y - ry) > 0.1) {
+        rx += (x - rx) * 0.16
+        ry += (y - ry) * 0.16
+        r.style.transform = `translate3d(${rx}px, ${ry}px, 0)`
       }
-      el.classList.toggle('cursor--hover', hover && !look.dragging)
-      el.classList.toggle('cursor--drag', look.dragging)
       raf = requestAnimationFrame(tick)
     }
     window.addEventListener('pointermove', move, { passive: true })
     window.addEventListener('pointerover', over, { passive: true })
+    window.addEventListener('pointerdown', down, { passive: true })
+    window.addEventListener('pointerup', up, { passive: true })
     document.addEventListener('pointerleave', leave)
     raf = requestAnimationFrame(tick)
     return () => {
       cancelAnimationFrame(raf)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerover', over)
+      window.removeEventListener('pointerdown', down)
+      window.removeEventListener('pointerup', up)
       document.removeEventListener('pointerleave', leave)
       document.documentElement.classList.remove('has-cursor')
     }
   }, [])
 
   return (
-    <div className="cursor cursor--hidden" ref={ref} aria-hidden="true">
-      <span className="cursor__ring" />
-      <span className="cursor__dot" />
-    </div>
+    <>
+      <div className="cursor cursor--hidden" ref={ring} aria-hidden="true">
+        <span className="cursor__ring" />
+      </div>
+      <div className="cursor cursor--hidden" ref={dot} aria-hidden="true">
+        <span className="cursor__dot" />
+      </div>
+    </>
   )
 }

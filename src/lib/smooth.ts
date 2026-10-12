@@ -24,8 +24,10 @@ export function initSmoothScroll() {
   if (!scroll.reduced) {
     lenis = new Lenis({ lerp: 0.075, wheelMultiplier: 0.85, smoothWheel: true, syncTouch: false })
     lenis.on('scroll', (l: Lenis) => {
+      scroll.velocity = l.velocity
       updateScroll(l.scroll)
       ScrollTrigger.update()
+      scheduleSettle()
     })
     raf = (time: number) => lenis?.raf(time * 1000)
     gsap.ticker.add(raf)
@@ -58,6 +60,25 @@ export function initSmoothScroll() {
     lenis?.destroy()
     lenis = null
   }
+}
+
+/**
+ * When scrolling stops halfway through an aperture, finish the move to the nearer
+ * page so the stills never rest half-open.
+ */
+let settleTimer = 0
+function scheduleSettle() {
+  clearTimeout(settleTimer)
+  settleTimer = window.setTimeout(() => {
+    if (!lenis || lenis.isScrolling) return
+    if (import.meta.env.DEV && (window as unknown as { __noSettle?: boolean }).__noSettle) return
+    scroll.velocity = 0
+    const k = Math.round(scroll.phase)
+    const d = scroll.phase - k
+    if (k < 1 || k > PHASE_COUNT - 1 || d < -0.17 || d > 0.13) return
+    if (d < -0.03) lenis.scrollTo(scrollYForPhase(k - 0.21), { duration: 0.9, easing: (t) => 1 - Math.pow(1 - t, 3) })
+    else scrollToPhase(k)
+  }, 240)
 }
 
 export function scrollToPhase(i: number) {

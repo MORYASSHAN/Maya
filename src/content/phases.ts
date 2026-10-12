@@ -74,8 +74,10 @@ export const SITE = {
     skip: 'Skip intro',
     simple: 'Simple view',
     deck: 'Request deck',
-    swipe: 'Swipe to look around',
     scroll: 'Scroll',
+    sound: 'Sound',
+    enterSound: 'Enter with sound',
+    enterQuiet: 'Enter without sound',
     readMore: 'Read more',
     index: 'Index',
     next: 'Next',
@@ -107,7 +109,6 @@ export const ORBIT = {
 
 export const MEDIA = {
   demoVideo: '/media/maya-eye-demo.mp4',
-  founder: '/media/founder.jpg',
 }
 
 export const PHASES: Phase[] = [

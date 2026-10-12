@@ -1,21 +1,29 @@
 import { StrictMode, useEffect, useState, type ComponentType } from 'react'
 import { createRoot } from 'react-dom/client'
-import '@fontsource-variable/oswald'
+import '@fontsource-variable/cormorant-garamond'
+import '@fontsource-variable/cormorant-garamond/wght-italic.css'
+import '@fontsource/syncopate/400.css'
+import '@fontsource/syncopate/700.css'
 import '@fontsource-variable/inter'
 import './styles/global.css'
 import './styles/pages.css'
 import { Loader } from './ui/Loader'
-import { detectQuality, hasWebGL } from './lib/gpuTier'
 import { markLoaded } from './lib/loading'
-import { mediaExists } from './lib/media'
-import { MEDIA } from './content/phases'
 import { scroll } from './lib/scroll'
 
 // Always start the story from the top.
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 
-// No WebGL → the plain, fast version.
-if (!hasWebGL()) window.location.replace('/simple')
+function hasWebGL2() {
+  try {
+    return !!document.createElement('canvas').getContext('webgl2')
+  } catch {
+    return false
+  }
+}
+
+// No WebGL2 → the plain, fast version.
+if (!hasWebGL2()) window.location.replace('/simple')
 
 scroll.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -27,18 +35,10 @@ function Boot() {
 
   useEffect(() => {
     document.fonts.ready.then(() => markLoaded('fonts'))
-    Promise.all([
-      mediaExists(MEDIA.founder, 'image'),
-      mediaExists(MEDIA.demoVideo, 'video'),
-    ]).finally(() => markLoaded('media'))
-    // GPU tier first: scene particle counts are read when the bundle mounts.
-    detectQuality()
-      .then(() => markLoaded('gpu'))
-      .then(() => import('./App'))
-      .then((m) => {
-        markLoaded('bundle')
-        setApp(() => m.default)
-      })
+    import('./App').then((m) => {
+      markLoaded('bundle')
+      setApp(() => m.default)
+    })
   }, [])
 
   return (

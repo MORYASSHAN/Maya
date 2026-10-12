@@ -1,4 +1,4 @@
-import { clamp, smooth } from './math'
+import { clamp } from './math'
 import { PHASES } from '../content/phases'
 
 export const PHASE_COUNT = PHASES.length
@@ -19,6 +19,8 @@ export const scroll = {
   progress: 0,
   index: 0,
   reduced: false,
+  /** Smoothed scroll speed in px per frame (signed). */
+  velocity: 0,
   /** Document height in px, cached on resize so per-frame readers don't force a layout. */
   height: 1,
 }
@@ -90,18 +92,4 @@ export function scrollYForPhase(phase: number) {
       ? (t / INTRO_SPAN) * intros[i]
       : intros[i] + ((t - INTRO_SPAN) / (1 - INTRO_SPAN)) * (heights[i] - intros[i])
   return Math.max(0, tops[i] + local - vh * 0.5)
-}
-
-// ── Scene visibility ─────────────────────────────────────────────────────────
-// Crossfade window around each page boundary.
-const IN_A = -0.04
-const IN_B = 0.07
-const OUT_A = 0.96
-const OUT_B = 1.07
-
-/** 0..1 visibility of pages `first`..`last` (a scene may span several pages). */
-export function phaseVisibility(phase: number, first: number, last = first) {
-  const fin = first === 0 ? 1 : smooth(clamp((phase - first - IN_A) / (IN_B - IN_A)))
-  const fout = last === PHASE_COUNT - 1 ? 1 : 1 - smooth(clamp((phase - last - OUT_A) / (OUT_B - OUT_A)))
-  return fin * fout
 }

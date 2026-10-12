@@ -4,6 +4,7 @@ import { onPhaseIndex, scroll, PHASE_COUNT } from '../lib/scroll'
 import { scrollToPhase } from '../lib/smooth'
 import { ArrowIcon } from './Icons'
 import { IndexMenu } from './IndexMenu'
+import { sound } from '../audio/sound'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -11,6 +12,8 @@ const pad = (n: number) => String(n).padStart(2, '0')
 export function Hud({ visible }: { visible: boolean }) {
   const [index, setIndex] = useState(scroll.index)
   const [menu, setMenu] = useState(false)
+  const [audible, setAudible] = useState(sound.enabled)
+  useEffect(() => sound.onChange(setAudible), [])
   const fillRef = useRef<HTMLSpanElement>(null)
   const closeMenu = useCallback(() => setMenu(false), [])
 
@@ -57,6 +60,21 @@ export function Hud({ visible }: { visible: boolean }) {
             <a className="navlink" href={LINKS.deck}>
               {SITE.hud.deck}
             </a>
+            <button
+              type="button"
+              className={`sound${audible ? ' is-on' : ''}`}
+              onClick={() => sound.toggle()}
+              aria-pressed={audible}
+              aria-label={SITE.hud.sound}
+            >
+              <span className="sound__bars" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="hide-sm">{SITE.hud.sound}</span>
+            </button>
             <button type="button" className="menu-btn" onClick={() => setMenu(true)} aria-haspopup="dialog" aria-expanded={menu}>
               <span>{SITE.hud.index}</span>
               <span className="menu-btn__lines" aria-hidden="true" />
@@ -76,7 +94,10 @@ export function Hud({ visible }: { visible: boolean }) {
             <ArrowIcon dir={last ? 'up' : 'down'} />
           </button>
 
-          {index === 0 && <span className="swipe" aria-hidden="true">{SITE.hud.swipe}</span>}
+          <span className={`scroll-cue${index === 0 ? '' : ' is-hidden'}`} aria-hidden="true">
+            <span>{SITE.hud.scroll}</span>
+            <i />
+          </span>
 
           <div className="counter" aria-hidden="true">
             <span className="counter__now">{pad(index + 1)}</span>

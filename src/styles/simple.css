@@ -1,7 +1,9 @@
 /* /simple — fast single-column reading version. Reuses the design tokens and prose styles. */
-@import '@fontsource-variable/oswald';
+@import '@fontsource-variable/cormorant-garamond';
+@import '@fontsource-variable/cormorant-garamond/wght-italic.css';
+@import '@fontsource/syncopate/400.css';
+@import '@fontsource/syncopate/700.css';
 @import '@fontsource-variable/inter';
-@import '@fontsource-variable/jetbrains-mono';
 @import './global.css';
 @import './pages.css';
 

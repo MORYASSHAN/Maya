@@ -9,6 +9,7 @@ import { scrollToPhase } from '../lib/smooth'
 import { mediaExists } from '../lib/media'
 import { sceneState } from '../lib/sceneState'
 import { headlineLines } from '../lib/headline'
+import { sound } from '../audio/sound'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -34,8 +35,14 @@ export function Section({ phase, index, started }: Props) {
         trigger: ref.current,
         start: 'top 35%',
         end: 'bottom 112%',
-        onEnter: () => tl.timeScale(1).play(),
-        onEnterBack: () => tl.timeScale(1).play(),
+        onEnter: () => {
+          tl.timeScale(1).play()
+          sound.shimmer()
+        },
+        onEnterBack: () => {
+          tl.timeScale(1).play()
+          sound.shimmer()
+        },
         onLeave: () => tl.timeScale(2.4).reverse(),
         onLeaveBack: () => tl.timeScale(2.4).reverse(),
       })
@@ -48,7 +55,8 @@ export function Section({ phase, index, started }: Props) {
     const ctx = gsap.context(() => {
       const tl = revealTimeline(headRef.current!, 1.25)
       if (!started) return
-      tl.delay(0.2).play()
+      tl.delay(scroll.reduced ? 0 : 0.9).play()
+      gsap.delayedCall(1.1, () => sound.shimmer())
       ScrollTrigger.create({
         trigger: ref.current,
         start: 'top top',
@@ -87,7 +95,11 @@ export function Section({ phase, index, started }: Props) {
                 <span className="line" key={i} aria-hidden="true">
                   {line.split(' ').map((word, j) => (
                     <span className="w" key={j}>
-                      <span>{word}</span>
+                      {Array.from(word).map((ch, c) => (
+                        <span className="ch" key={c}>
+                          {ch}
+                        </span>
+                      ))}
                     </span>
                   ))}
                 </span>
@@ -171,24 +183,40 @@ export function Section({ phase, index, started }: Props) {
   )
 }
 
-/** Lines of the headline rise from behind their masks; the rest follows. */
+/**
+ * Letters surface out of the dark: each rises from below its line, out of focus,
+ * and settles into place. The rest of the copy follows.
+ */
 function revealTimeline(head: HTMLElement, pace: number) {
-  const words = head.querySelectorAll('.w > span')
+  const chars = head.querySelectorAll('.ch')
   const rest = head.querySelectorAll('[data-reveal]')
   const tl = gsap.timeline({ paused: true, defaults: { ease: 'expo.out' } })
   gsap.set(head, { autoAlpha: 0 })
   if (scroll.reduced) return tl.to(head, { autoAlpha: 1, duration: 0.5, ease: 'none' })
   return tl
     .set(head, { autoAlpha: 1 })
-    .fromTo(words, { yPercent: 115, rotate: 2 }, { yPercent: 0, rotate: 0, duration: 1.2 * pace, stagger: 0.04 * pace }, 0)
-    .fromTo(rest, { y: 16, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1 * pace, stagger: 0.06 }, 0.15)
+    .fromTo(
+      chars,
+      { yPercent: 60, autoAlpha: 0, filter: 'blur(14px)', scaleY: 1.5 },
+      {
+        yPercent: 0,
+        autoAlpha: 1,
+        filter: 'blur(0px)',
+        scaleY: 1,
+        duration: 1.6 * pace,
+        stagger: { each: 0.028 * pace, from: 'start' },
+        clearProps: 'filter',
+      },
+      0,
+    )
+    .fromTo(rest, { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1.2 * pace, stagger: 0.08 }, 0.35)
 }
 
 /** Live vs Building: two typographic columns; every feature links to its page. */
 function StatusList() {
   const groups = [
-    { key: 'live' as const, label: 'Live', items: ORBIT.live, offset: 0 },
-    { key: 'dev' as const, label: 'Building', items: ORBIT.building, offset: ORBIT.live.length },
+    { key: 'live' as const, label: 'Live', items: ORBIT.live },
+    { key: 'dev' as const, label: 'Building', items: ORBIT.building },
   ]
   return (
     <div className="ledger" data-reveal>
@@ -199,7 +227,7 @@ function StatusList() {
             <span className="ledger__count">{pad(g.items.length)}</span>
           </p>
           <ul>
-            {g.items.map((f, j) => (
+            {g.items.map((f) => (
               <li key={f.name}>
                 <a
                   href={`#${f.id}`}
@@ -207,10 +235,10 @@ function StatusList() {
                     e.preventDefault()
                     scrollToPhase(phaseIndex(f.id))
                   }}
-                  onPointerEnter={() => (sceneState.highlight = g.offset + j)}
-                  onPointerLeave={() => (sceneState.highlight = -1)}
-                  onFocus={() => (sceneState.highlight = g.offset + j)}
-                  onBlur={() => (sceneState.highlight = -1)}
+                  onPointerEnter={() => (sceneState.preview = f.id)}
+                  onPointerLeave={() => (sceneState.preview = null)}
+                  onFocus={() => (sceneState.preview = f.id)}
+                  onBlur={() => (sceneState.preview = null)}
                 >
                   <span>{f.name}</span>
                   <ArrowIcon />
