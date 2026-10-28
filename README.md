@@ -1,4 +1,4 @@
-# Maya immersive site
+# Maya - immersive site
 
 The scroll-driven Three.js site for **Maya**, built by DFORR Private Limited (Jaipur).
 One page per feature: each page pins a short, centered intro (uppercase headline, one line,
